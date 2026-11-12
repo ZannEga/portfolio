@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Settings, Plus, Trash2, Edit3, ArrowUp, ArrowDown,
+  Settings, Plus, Trash2, Edit3, ArrowUp, ArrowDown, ChevronsUp,
   Code2, Cpu, Sparkles, Wrench, FolderGit2, ExternalLink, Github, Linkedin,
   Mail, MapPin, Terminal, Download, Upload, CheckCircle2,
   AlertTriangle, X, Zap, Image as ImageIcon, Lock, Unlock, KeyRound,
@@ -555,7 +555,7 @@ export default function App() {
         showToast('Admin Mode Unlocked! CMS & Quick Edit controls enabled.');
         return;
       } else if (res.status === 401) {
-        showToast('Invalid Admin Token! Access denied by Golang Server.', 'error');
+        showToast('Invalid Admin Token! Access denied by Server.', 'error');
         return;
       }
     } catch {
@@ -629,13 +629,13 @@ export default function App() {
     localStorage.setItem(ADMIN_TOKEN_KEY, adminToken);
   }, [adminToken]);
 
-  // Auto-fetch from Golang server on initial load
+  // Auto-fetch from server on initial load
   useEffect(() => {
     pullFromGolang(true);
   }, []);
 
   const pullFromGolang = async (silent = false) => {
-    setSyncStatus({ state: 'syncing', message: 'FETCHING GOLANG...' });
+    setSyncStatus({ state: 'syncing', message: 'FETCHING DATA...' });
     try {
       const res = await fetch(apiUrl, { method: 'GET' });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -643,19 +643,19 @@ export default function App() {
       if (remoteData && remoteData.profile) {
         if (!remoteData.certifications) remoteData.certifications = INITIAL_DATA.certifications;
         setData(remoteData);
-        setSyncStatus({ state: 'synced', message: 'GOLANG SYNCED' });
-        if (!silent) showToast('Successfully pulled latest data from Golang Server!', 'success');
+        setSyncStatus({ state: 'synced', message: 'CLOUD SYNCED' });
+        if (!silent) showToast('Successfully pulled latest portfolio data!', 'success');
       }
     } catch (err) {
       setSyncStatus({ state: 'local', message: 'LOCAL MODE (OFFLINE)' });
       if (!silent) {
-        showToast(`Failed to fetch from Golang (${err.message}). Make sure go run . is running!`, 'error');
+        showToast(`Failed to fetch from server (${err.message}).`, 'error');
       }
     }
   };
 
   const pushToGolang = async () => {
-    setSyncStatus({ state: 'syncing', message: 'PUSHING TO GOLANG...' });
+    setSyncStatus({ state: 'syncing', message: 'SAVING TO CLOUD...' });
     try {
       const res = await fetch(apiUrl, {
         method: 'PUT',
@@ -669,11 +669,11 @@ export default function App() {
       if (!res.ok) {
         throw new Error(result.error || `HTTP ${res.status}`);
       }
-      setSyncStatus({ state: 'synced', message: 'GOLANG SYNCED' });
-      showToast('Success! Portfolio data saved to Golang Server!', 'success');
+      setSyncStatus({ state: 'synced', message: 'CLOUD SYNCED' });
+      showToast('Success! Portfolio order & content saved permanently!', 'success');
     } catch (err) {
       setSyncStatus({ state: 'error', message: 'PUSH FAILED' });
-      showToast(`Failed to PUSH to Golang: ${err.message}`, 'error');
+      showToast(`Failed to PUSH: ${err.message}`, 'error');
     }
   };
 
@@ -718,16 +718,36 @@ export default function App() {
     showToast('Item deleted!', 'info');
   };
 
+  // Move item 1 step up/left (-1) or down/right (+1)
   const moveItem = (section, index, direction) => {
     setData((prev) => {
       const list = [...(prev[section] || [])];
       const targetIndex = index + direction;
       if (targetIndex < 0 || targetIndex >= list.length) return prev;
-      const temp = list[index];
-      list[index] = list[targetIndex];
-      list[targetIndex] = temp;
+      const [moved] = list.splice(index, 1);
+      list.splice(targetIndex, 0, moved);
       return { ...prev, [section]: list };
     });
+  };
+
+  // Move item directly to a specific position index (e.g., move C to #1 in front of A)
+  const moveItemToPosition = (section, fromIndex, toIndex) => {
+    setData((prev) => {
+      const list = [...(prev[section] || [])];
+      if (
+        fromIndex < 0 ||
+        fromIndex >= list.length ||
+        toIndex < 0 ||
+        toIndex >= list.length ||
+        fromIndex === toIndex
+      ) {
+        return prev;
+      }
+      const [moved] = list.splice(fromIndex, 1);
+      list.splice(toIndex, 0, moved);
+      return { ...prev, [section]: list };
+    });
+    showToast(`Moved item to position #${toIndex + 1}!`);
   };
 
   // Universal local image file uploader (Base64 Data URL)
@@ -766,6 +786,70 @@ export default function App() {
       showToast(`Invalid JSON format: ${e.message}`, 'error');
     }
   };
+
+  // Reusable Sorting Toolbar Component (Move to #1/Top, Up, Down, or Jump to Position #X)
+  const renderSortControls = (section, idx, total) => (
+    <div className="flex items-center gap-1 flex-wrap">
+      {/* Direct Position Selector Dropdown (#1, #2, #3...) */}
+      <select
+        value={idx}
+        onChange={(e) => moveItemToPosition(section, idx, Number(e.target.value))}
+        title="Jump directly to position"
+        className="px-1.5 py-0.5 bg-[#FFDE00] border border-black font-mono-code text-[11px] font-extrabold cursor-pointer"
+      >
+        {Array.from({ length: total }).map((_, i) => (
+          <option key={i} value={i}>
+            #{i + 1}
+          </option>
+        ))}
+      </select>
+
+      {/* Move to #1 (Front / Top) Button */}
+      <button
+        type="button"
+        disabled={idx === 0}
+        onClick={() => moveItemToPosition(section, idx, 0)}
+        title="Move to #1 (First Position)"
+        className={`px-1.5 py-0.5 border border-black text-[10px] font-mono-code font-extrabold flex items-center gap-0.5 ${
+          idx === 0
+            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+            : 'bg-[#00E5FF] text-black hover:bg-cyan-300 cursor-pointer'
+        }`}
+      >
+        <ChevronsUp size={12} /> TOP
+      </button>
+
+      {/* Step Up / Previous */}
+      <button
+        type="button"
+        disabled={idx === 0}
+        onClick={() => moveItem(section, idx, -1)}
+        title="Move Up / Earlier"
+        className={`px-1.5 py-0.5 border border-black text-xs font-bold ${
+          idx === 0
+            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+            : 'bg-white hover:bg-yellow-200 cursor-pointer'
+        }`}
+      >
+        <ArrowUp size={12} />
+      </button>
+
+      {/* Step Down / Next */}
+      <button
+        type="button"
+        disabled={idx === total - 1}
+        onClick={() => moveItem(section, idx, 1)}
+        title="Move Down / Later"
+        className={`px-1.5 py-0.5 border border-black text-xs font-bold ${
+          idx === total - 1
+            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+            : 'bg-white hover:bg-yellow-200 cursor-pointer'
+        }`}
+      >
+        <ArrowDown size={12} />
+      </button>
+    </div>
+  );
 
   const certifications = data.certifications || [];
 
@@ -1217,7 +1301,7 @@ export default function App() {
               return (
                 <div
                   key={proj.id}
-                  className={`tcg-pack-perspective h-[470px] select-none ${
+                  className={`tcg-pack-perspective h-[480px] select-none ${
                     gachaHighlightId === proj.id ? 'ring-8 ring-[#00E5FF] animate-bounce' : ''
                   }`}
                 >
@@ -1306,7 +1390,7 @@ export default function App() {
                           </button>
                         </div>
 
-                        <div className="p-4 space-y-2.5">
+                        <div className="p-4 space-y-2">
                           <div className="text-xs font-mono-code font-bold uppercase text-gray-500">
                             {proj.category}
                           </div>
@@ -1355,36 +1439,25 @@ export default function App() {
                         </div>
 
                         {isAdmin && editMode && (
-                          <div className="flex items-center justify-between bg-gray-100 p-1.5 border-2 border-black">
-                            <div className="flex gap-1">
+                          <div className="flex items-center justify-between bg-gray-100 p-1.5 border-2 border-black gap-1">
+                            {renderSortControls('projects', idx, data.projects.length)}
+                            <div className="flex items-center gap-1">
                               <button
-                                onClick={() => moveItem('projects', idx, -1)}
-                                className="px-2 py-0.5 bg-white border border-black text-xs font-bold cursor-pointer"
+                                onClick={() => {
+                                  setActiveTab('projects');
+                                  setCmsOpen(true);
+                                }}
+                                className="px-2 py-0.5 bg-amber-300 border border-black text-xs font-bold cursor-pointer"
                               >
-                                <ArrowUp size={12} />
+                                EDIT
                               </button>
                               <button
-                                onClick={() => moveItem('projects', idx, 1)}
-                                className="px-2 py-0.5 bg-white border border-black text-xs font-bold cursor-pointer"
+                                onClick={() => deleteItem('projects', proj.id)}
+                                className="px-2 py-0.5 bg-red-500 text-white border border-black text-xs font-bold cursor-pointer"
                               >
-                                <ArrowDown size={12} />
+                                <Trash2 size={12} />
                               </button>
                             </div>
-                            <button
-                              onClick={() => {
-                                setActiveTab('projects');
-                                setCmsOpen(true);
-                              }}
-                              className="px-2 py-0.5 bg-amber-300 border border-black text-xs font-bold cursor-pointer"
-                            >
-                              EDIT
-                            </button>
-                            <button
-                              onClick={() => deleteItem('projects', proj.id)}
-                              className="px-2 py-0.5 bg-red-500 text-white border border-black text-xs font-bold cursor-pointer"
-                            >
-                              <Trash2 size={12} />
-                            </button>
                           </div>
                         )}
                       </div>
@@ -1436,7 +1509,7 @@ export default function App() {
             </div>
 
             <div className="space-y-4">
-              {data.codingLanguages.map((lang) => {
+              {data.codingLanguages.map((lang, idx) => {
                 const usage = getLanguageUsageInfo(lang.name, data.projects);
                 return (
                   <div
@@ -1486,7 +1559,8 @@ export default function App() {
                     )}
 
                     {isAdmin && editMode && (
-                      <div className="flex justify-end gap-2 pt-1">
+                      <div className="flex items-center justify-between pt-2 border-t border-black/20">
+                        {renderSortControls('codingLanguages', idx, data.codingLanguages.length)}
                         <button
                           onClick={() => deleteItem('codingLanguages', lang.id)}
                           className="text-xs text-red-600 font-bold underline cursor-pointer"
@@ -1533,33 +1607,37 @@ export default function App() {
             </div>
 
             <div className="grid grid-cols-1 gap-3.5">
-              {data.hardSkills.map((skill) => (
+              {data.hardSkills.map((skill, idx) => (
                 <div
                   key={skill.id}
-                  className="border-3 border-black p-3.5 bg-[#FDFBF7] neo-item-pop flex items-center justify-between gap-3"
+                  className="border-3 border-black p-3.5 bg-[#FDFBF7] neo-item-pop space-y-2"
                 >
-                  <div>
-                    <div className="text-xs font-mono-code font-bold text-gray-500 uppercase">
-                      {skill.category}
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <div className="text-xs font-mono-code font-bold text-gray-500 uppercase">
+                        {skill.category}
+                      </div>
+                      <div className="font-black text-base">{skill.name}</div>
                     </div>
-                    <div className="font-black text-base">{skill.name}</div>
-                  </div>
-                  <div className="flex items-center gap-2">
                     <span
                       style={{ backgroundColor: data.theme.primary }}
-                      className="px-2.5 py-1 border-2 border-black font-pixel text-[10px]"
+                      className="px-2.5 py-1 border-2 border-black font-pixel text-[10px] shrink-0"
                     >
                       {skill.mastery}
                     </span>
-                    {isAdmin && editMode && (
+                  </div>
+
+                  {isAdmin && editMode && (
+                    <div className="flex items-center justify-between pt-2 border-t border-black/20">
+                      {renderSortControls('hardSkills', idx, data.hardSkills.length)}
                       <button
                         onClick={() => deleteItem('hardSkills', skill.id)}
                         className="p-1 bg-red-500 text-white border border-black cursor-pointer"
                       >
                         <Trash2 size={13} />
                       </button>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -1600,7 +1678,7 @@ export default function App() {
             </div>
 
             <div className="grid grid-cols-1 gap-4">
-              {data.softSkills.map((ss) => (
+              {data.softSkills.map((ss, idx) => (
                 <div
                   key={ss.id}
                   className="border-3 border-black p-4 bg-[#FDFBF7] neo-item-pop space-y-1.5"
@@ -1613,12 +1691,15 @@ export default function App() {
                   </div>
                   <p className="text-sm text-gray-700">{ss.description}</p>
                   {isAdmin && editMode && (
-                    <button
-                      onClick={() => deleteItem('softSkills', ss.id)}
-                      className="text-xs text-red-600 font-bold underline cursor-pointer"
-                    >
-                      Delete Buff
-                    </button>
+                    <div className="flex items-center justify-between pt-2 border-t border-black/20">
+                      {renderSortControls('softSkills', idx, data.softSkills.length)}
+                      <button
+                        onClick={() => deleteItem('softSkills', ss.id)}
+                        className="text-xs text-red-600 font-bold underline cursor-pointer"
+                      >
+                        Delete Buff
+                      </button>
+                    </div>
                   )}
                 </div>
               ))}
@@ -1658,7 +1739,7 @@ export default function App() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-              {data.softwareCapabilities.map((sw) => (
+              {data.softwareCapabilities.map((sw, idx) => (
                 <div
                   key={sw.id}
                   className="border-3 border-black p-3.5 bg-[#FDFBF7] neo-item-pop flex flex-col justify-between gap-2 group"
@@ -1685,12 +1766,15 @@ export default function App() {
                     </div>
                   </div>
                   {isAdmin && editMode && (
-                    <button
-                      onClick={() => deleteItem('softwareCapabilities', sw.id)}
-                      className="text-xs text-red-600 font-bold underline self-end cursor-pointer"
-                    >
-                      Delete
-                    </button>
+                    <div className="flex items-center justify-between pt-2 border-t border-black/20">
+                      {renderSortControls('softwareCapabilities', idx, data.softwareCapabilities.length)}
+                      <button
+                        onClick={() => deleteItem('softwareCapabilities', sw.id)}
+                        className="text-xs text-red-600 font-bold underline cursor-pointer"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   )}
                 </div>
               ))}
@@ -1813,36 +1897,25 @@ export default function App() {
                   </div>
 
                   {isAdmin && editMode && (
-                    <div className="flex items-center justify-between bg-gray-100 p-1.5 border-2 border-black">
-                      <div className="flex gap-1">
+                    <div className="flex items-center justify-between bg-gray-100 p-1.5 border-2 border-black gap-1">
+                      {renderSortControls('certifications', idx, certifications.length)}
+                      <div className="flex items-center gap-1">
                         <button
-                          onClick={() => moveItem('certifications', idx, -1)}
-                          className="px-2 py-0.5 bg-white border border-black text-xs font-bold cursor-pointer"
+                          onClick={() => {
+                            setActiveTab('certifications');
+                            setCmsOpen(true);
+                          }}
+                          className="px-2 py-0.5 bg-amber-300 border border-black text-xs font-bold cursor-pointer"
                         >
-                          <ArrowUp size={12} />
+                          EDIT
                         </button>
                         <button
-                          onClick={() => moveItem('certifications', idx, 1)}
-                          className="px-2 py-0.5 bg-white border border-black text-xs font-bold cursor-pointer"
+                          onClick={() => deleteItem('certifications', cert.id)}
+                          className="px-2 py-0.5 bg-red-500 text-white border border-black text-xs font-bold cursor-pointer"
                         >
-                          <ArrowDown size={12} />
+                          <Trash2 size={12} />
                         </button>
                       </div>
-                      <button
-                        onClick={() => {
-                          setActiveTab('certifications');
-                          setCmsOpen(true);
-                        }}
-                        className="px-2 py-0.5 bg-amber-300 border border-black text-xs font-bold cursor-pointer"
-                      >
-                        EDIT
-                      </button>
-                      <button
-                        onClick={() => deleteItem('certifications', cert.id)}
-                        className="px-2 py-0.5 bg-red-500 text-white border border-black text-xs font-bold cursor-pointer"
-                      >
-                        <Trash2 size={12} />
-                      </button>
                     </div>
                   )}
                 </div>
@@ -1863,7 +1936,7 @@ export default function App() {
             >
               <div className="flex items-center gap-2">
                 <Settings size={20} />
-                <h2 className="font-pixel text-xs md:text-sm">LIVE VISUAL CMS & GOLANG SYNC</h2>
+                <h2 className="font-pixel text-xs md:text-sm">LIVE VISUAL CMS & CLOUD SYNC</h2>
               </div>
               <button
                 onClick={() => setCmsOpen(false)}
@@ -1883,7 +1956,7 @@ export default function App() {
                 { id: 'softskills', label: '5. SOFT SKILLS' },
                 { id: 'software', label: '6. SOFTWARE' },
                 { id: 'certifications', label: '7. CERTIFICATIONS' },
-                { id: 'golang', label: '8. GOLANG & JSON' }
+                { id: 'golang', label: '8. CLOUD SYNC & JSON' }
               ].map((tab) => (
                 <button
                   key={tab.id}
@@ -2051,9 +2124,9 @@ export default function App() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="font-black text-lg uppercase">Manage Projects ({data.projects.length})</h3>
+                      <h3 className="font-black text-lg uppercase">Manage & Sort Projects ({data.projects.length})</h3>
                       <p className="text-xs font-mono-code text-gray-600">
-                        Upload project cover images directly from your device or paste an image URL.
+                        Use #Position, TOP, or ▲/▼ to reorder projects (e.g., move Project C in front of A).
                       </p>
                     </div>
                     <button
@@ -2076,12 +2149,15 @@ export default function App() {
                     </button>
                   </div>
 
-                  {data.projects.map((proj) => (
+                  {data.projects.map((proj, idx) => (
                     <div key={proj.id} className="border-3 border-black p-4 bg-white space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span className="font-mono-code text-xs font-bold bg-black text-white px-2 py-0.5">
-                          ID: {proj.id}
-                        </span>
+                      <div className="flex flex-wrap justify-between items-center gap-2 bg-gray-100 p-2 border-2 border-black">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono-code text-xs font-extrabold bg-black text-[#FFDE00] px-2 py-0.5">
+                            POS #{idx + 1}
+                          </span>
+                          {renderSortControls('projects', idx, data.projects.length)}
+                        </div>
                         <button
                           onClick={() => deleteItem('projects', proj.id)}
                           className="text-xs text-red-600 font-extrabold cursor-pointer"
@@ -2198,9 +2274,9 @@ export default function App() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="font-black text-lg uppercase">Coding Languages</h3>
+                      <h3 className="font-black text-lg uppercase">Manage & Sort Coding Languages</h3>
                       <p className="text-xs font-mono-code text-gray-600">
-                        Usage count is automatically calculated from Project Tech Stacks.
+                        Reorder languages or adjust EXP proficiency levels.
                       </p>
                     </div>
                     <button
@@ -2217,14 +2293,17 @@ export default function App() {
                       + ADD LANGUAGE
                     </button>
                   </div>
-                  {data.codingLanguages.map((lang) => {
+                  {data.codingLanguages.map((lang, idx) => {
                     const usage = getLanguageUsageInfo(lang.name, data.projects);
                     return (
                       <div key={lang.id} className="border-2 border-black p-3 bg-white space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-mono-code font-extrabold px-2 py-0.5 border border-black bg-[#00E5FF]">
-                            Detected in {usage.count} {usage.count === 1 ? 'Project' : 'Projects'}
-                          </span>
+                        <div className="flex flex-wrap items-center justify-between gap-2 bg-gray-100 p-1.5 border border-black">
+                          <div className="flex items-center gap-2">
+                            {renderSortControls('codingLanguages', idx, data.codingLanguages.length)}
+                            <span className="text-xs font-mono-code font-extrabold px-2 py-0.5 border border-black bg-[#00E5FF]">
+                              Detected in {usage.count} {usage.count === 1 ? 'Project' : 'Projects'}
+                            </span>
+                          </div>
                           <button
                             onClick={() => deleteItem('codingLanguages', lang.id)}
                             className="text-xs text-red-600 font-extrabold cursor-pointer"
@@ -2265,7 +2344,7 @@ export default function App() {
               {activeTab === 'hardskills' && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-black text-lg uppercase">Hard Skills</h3>
+                    <h3 className="font-black text-lg uppercase">Manage & Sort Hard Skills</h3>
                     <button
                       onClick={() =>
                         addItem('hardSkills', {
@@ -2279,30 +2358,33 @@ export default function App() {
                       + ADD HARD SKILL
                     </button>
                   </div>
-                  {data.hardSkills.map((hs) => (
-                    <div key={hs.id} className="border-2 border-black p-3 bg-white grid grid-cols-1 sm:grid-cols-4 gap-2">
-                      <input
-                        value={hs.name}
-                        onChange={(e) => updateItem('hardSkills', hs.id, 'name', e.target.value)}
-                        className="border-2 border-black p-1.5 text-sm font-bold sm:col-span-2"
-                      />
-                      <input
-                        value={hs.category}
-                        onChange={(e) => updateItem('hardSkills', hs.id, 'category', e.target.value)}
-                        className="border-2 border-black p-1.5 text-xs"
-                      />
-                      <div className="flex gap-1">
+                  {data.hardSkills.map((hs, idx) => (
+                    <div key={hs.id} className="border-2 border-black p-3 bg-white space-y-2">
+                      <div className="flex items-center justify-between bg-gray-100 p-1.5 border border-black">
+                        {renderSortControls('hardSkills', idx, data.hardSkills.length)}
+                        <button
+                          onClick={() => deleteItem('hardSkills', hs.id)}
+                          className="bg-red-500 text-white px-2 py-0.5 border border-black text-xs font-bold cursor-pointer flex items-center gap-1"
+                        >
+                          <Trash2 size={12} /> DELETE
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                        <input
+                          value={hs.name}
+                          onChange={(e) => updateItem('hardSkills', hs.id, 'name', e.target.value)}
+                          className="border-2 border-black p-1.5 text-sm font-bold sm:col-span-2"
+                        />
+                        <input
+                          value={hs.category}
+                          onChange={(e) => updateItem('hardSkills', hs.id, 'category', e.target.value)}
+                          className="border-2 border-black p-1.5 text-xs"
+                        />
                         <input
                           value={hs.mastery}
                           onChange={(e) => updateItem('hardSkills', hs.id, 'mastery', e.target.value)}
                           className="border-2 border-black p-1.5 text-xs w-full"
                         />
-                        <button
-                          onClick={() => deleteItem('hardSkills', hs.id)}
-                          className="bg-red-500 text-white px-2 border-2 border-black cursor-pointer"
-                        >
-                          <Trash2 size={14} />
-                        </button>
                       </div>
                     </div>
                   ))}
@@ -2312,7 +2394,7 @@ export default function App() {
               {activeTab === 'softskills' && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-black text-lg uppercase">Soft Skills (Party Buffs)</h3>
+                    <h3 className="font-black text-lg uppercase">Manage & Sort Soft Skills</h3>
                     <button
                       onClick={() =>
                         addItem('softSkills', {
@@ -2326,8 +2408,17 @@ export default function App() {
                       + ADD SOFT SKILL
                     </button>
                   </div>
-                  {data.softSkills.map((ss) => (
+                  {data.softSkills.map((ss, idx) => (
                     <div key={ss.id} className="border-2 border-black p-3 bg-white space-y-2">
+                      <div className="flex items-center justify-between bg-gray-100 p-1.5 border border-black">
+                        {renderSortControls('softSkills', idx, data.softSkills.length)}
+                        <button
+                          onClick={() => deleteItem('softSkills', ss.id)}
+                          className="text-xs text-red-600 font-extrabold cursor-pointer"
+                        >
+                          DELETE
+                        </button>
+                      </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <input
                           value={ss.name}
@@ -2346,12 +2437,6 @@ export default function App() {
                         onChange={(e) => updateItem('softSkills', ss.id, 'description', e.target.value)}
                         className="w-full border-2 border-black p-1.5 text-sm"
                       />
-                      <button
-                        onClick={() => deleteItem('softSkills', ss.id)}
-                        className="text-xs text-red-600 font-bold underline cursor-pointer"
-                      >
-                        Delete Soft Skill
-                      </button>
                     </div>
                   ))}
                 </div>
@@ -2361,9 +2446,9 @@ export default function App() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="font-black text-lg uppercase">Software Inventory (Logo Assets)</h3>
+                      <h3 className="font-black text-lg uppercase">Manage & Sort Software Inventory</h3>
                       <p className="text-xs font-mono-code text-gray-600">
-                        Paste a logo image URL (SVG/PNG) or upload an image file directly from your device.
+                        Reorder tools or upload software logo images from your device.
                       </p>
                     </div>
                     <button
@@ -2380,8 +2465,17 @@ export default function App() {
                       + ADD SOFTWARE
                     </button>
                   </div>
-                  {data.softwareCapabilities.map((sw) => (
+                  {data.softwareCapabilities.map((sw, idx) => (
                     <div key={sw.id} className="border-2 border-black p-3 bg-white space-y-3">
+                      <div className="flex items-center justify-between bg-gray-100 p-1.5 border border-black">
+                        {renderSortControls('softwareCapabilities', idx, data.softwareCapabilities.length)}
+                        <button
+                          onClick={() => deleteItem('softwareCapabilities', sw.id)}
+                          className="bg-red-500 text-white px-2 py-0.5 border border-black text-xs font-bold cursor-pointer flex items-center gap-1"
+                        >
+                          <Trash2 size={12} /> DELETE
+                        </button>
+                      </div>
                       <div className="flex items-center gap-3">
                         <div className="w-12 h-12 border-2 border-black bg-gray-50 p-1.5 flex items-center justify-center shrink-0">
                           {sw.logoUrl ? (
@@ -2403,20 +2497,12 @@ export default function App() {
                             onChange={(e) => updateItem('softwareCapabilities', sw.id, 'role', e.target.value)}
                             className="border-2 border-black p-1.5 text-xs"
                           />
-                          <div className="flex gap-1">
-                            <input
-                              placeholder="Rarity (LEGENDARY/EPIC)"
-                              value={sw.rarity}
-                              onChange={(e) => updateItem('softwareCapabilities', sw.id, 'rarity', e.target.value)}
-                              className="border-2 border-black p-1.5 text-xs font-mono-code w-full"
-                            />
-                            <button
-                              onClick={() => deleteItem('softwareCapabilities', sw.id)}
-                              className="bg-red-500 text-white px-2 border-2 border-black cursor-pointer"
-                            >
-                              <Trash2 size={14} />
-                            </button>
-                          </div>
+                          <input
+                            placeholder="Rarity (LEGENDARY/EPIC)"
+                            value={sw.rarity}
+                            onChange={(e) => updateItem('softwareCapabilities', sw.id, 'rarity', e.target.value)}
+                            className="border-2 border-black p-1.5 text-xs font-mono-code w-full"
+                          />
                         </div>
                       </div>
 
@@ -2455,10 +2541,10 @@ export default function App() {
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="font-black text-lg uppercase">
-                        Manage Certifications ({certifications.length})
+                        Manage & Sort Certifications ({certifications.length})
                       </h3>
                       <p className="text-xs font-mono-code text-gray-600">
-                        Upload high-resolution certificate images so visitors can zoom & inspect them in detail.
+                        Reorder certificates or upload high-resolution certificate images.
                       </p>
                     </div>
                     <button
@@ -2479,12 +2565,15 @@ export default function App() {
                     </button>
                   </div>
 
-                  {certifications.map((cert) => (
+                  {certifications.map((cert, idx) => (
                     <div key={cert.id} className="border-3 border-black p-4 bg-white space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span className="font-mono-code text-xs font-bold bg-black text-white px-2 py-0.5">
-                          ID: {cert.id}
-                        </span>
+                      <div className="flex flex-wrap justify-between items-center gap-2 bg-gray-100 p-2 border-2 border-black">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono-code text-xs font-extrabold bg-black text-[#FFDE00] px-2 py-0.5">
+                            POS #{idx + 1}
+                          </span>
+                          {renderSortControls('certifications', idx, certifications.length)}
+                        </div>
                         <button
                           onClick={() => deleteItem('certifications', cert.id)}
                           className="text-xs text-red-600 font-extrabold cursor-pointer"
@@ -2589,10 +2678,10 @@ export default function App() {
                 <div className="space-y-5">
                   <div className="border-3 border-black p-4 bg-white space-y-3">
                     <h3 className="font-black text-base uppercase flex items-center gap-2">
-                      <Terminal size={18} /> Golang Backend Connection (Fullstack Mode)
+                      <Terminal size={18} /> Cloud API / Golang Backend Connection
                     </h3>
                     <div>
-                      <label className="text-xs font-bold block mb-1">Golang API Endpoint URL</label>
+                      <label className="text-xs font-bold block mb-1">API Endpoint URL</label>
                       <input
                         value={apiUrl}
                         onChange={(e) => setApiUrl(e.target.value)}
@@ -2614,14 +2703,14 @@ export default function App() {
                         onClick={() => pullFromGolang(false)}
                         className="neo-btn px-4 py-2 bg-[#00E5FF] font-extrabold text-xs flex items-center gap-1.5 cursor-pointer"
                       >
-                        <Download size={15} /> PULL (GET FROM GOLANG)
+                        <Download size={15} /> PULL (GET LATEST DATA)
                       </button>
                       <button
                         onClick={pushToGolang}
                         style={{ backgroundColor: data.theme.primary }}
                         className="neo-btn px-4 py-2 font-extrabold text-xs flex items-center gap-1.5 cursor-pointer"
                       >
-                        <Upload size={15} /> PUSH (PUT TO GOLANG)
+                        <Upload size={15} /> PUSH (SAVE TO CLOUD)
                       </button>
                     </div>
                   </div>
