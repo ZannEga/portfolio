@@ -377,6 +377,13 @@ const getDefaultApiUrl = () => {
     if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_URL) {
       return import.meta.env.VITE_API_URL;
     }
+    if (
+      typeof window !== 'undefined' &&
+      window.location.hostname !== 'localhost' &&
+      window.location.hostname !== '127.0.0.1'
+    ) {
+      return '/api/portfolio';
+    }
   } catch (e) {
     // ignore
   }
@@ -465,7 +472,19 @@ export default function App() {
   const [cmsOpen, setCmsOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [activeTab, setActiveTab] = useState('profile');
-  const [apiUrl, setApiUrl] = useState(() => localStorage.getItem(API_URL_KEY) || getDefaultApiUrl());
+  const [apiUrl, setApiUrl] = useState(() => {
+    const saved = localStorage.getItem(API_URL_KEY);
+    if (
+      typeof window !== 'undefined' &&
+      window.location.hostname !== 'localhost' &&
+      window.location.hostname !== '127.0.0.1' &&
+      saved &&
+      saved.includes('localhost')
+    ) {
+      return getDefaultApiUrl();
+    }
+    return saved || getDefaultApiUrl();
+  });
   const [adminToken, setAdminToken] = useState(() => localStorage.getItem(ADMIN_TOKEN_KEY) || 'rahasia-fauzan-99');
   const [syncStatus, setSyncStatus] = useState({ state: 'local', message: 'LOCAL STORAGE' });
   const [toast, setToast] = useState(null);
