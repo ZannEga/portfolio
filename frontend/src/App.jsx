@@ -4,7 +4,7 @@ import {
   Code2, Cpu, Sparkles, Wrench, FolderGit2, ExternalLink, Github, Linkedin,
   Mail, MapPin, Terminal, Download, Upload, CheckCircle2,
   AlertTriangle, X, Zap, Image as ImageIcon, Lock, Unlock, KeyRound,
-  Eye, EyeOff, Dices, Pin, Award, ZoomIn, ZoomOut, Maximize2
+  Eye, EyeOff, Dices, Pin, Award, ZoomIn, ZoomOut, Maximize2, Gift, Layers, RotateCcw, ArrowRight
 } from 'lucide-react';
 
 const INITIAL_DATA = {
@@ -371,6 +371,7 @@ const STORAGE_KEY = 'neobrutal_pixel_portfolio_fauzan_v8_en';
 const API_URL_KEY = 'neobrutal_golang_api_url';
 const ADMIN_TOKEN_KEY = 'neobrutal_golang_admin_token';
 const ADMIN_SESSION_KEY = 'neobrutal_admin_unlocked';
+const STARTER_PACK_SESSION_KEY = 'neobrutal_starter_pack_seen_v1';
 
 const getDefaultApiUrl = () => {
   try {
@@ -469,6 +470,53 @@ export default function App() {
   const [selectedCert, setSelectedCert] = useState(null);
   const [certZoom, setCertZoom] = useState(1);
 
+  // First-Session Fullscreen TCG Booster Pack Cover State
+  const [starterModalOpen, setStarterModalOpen] = useState(() => {
+    try {
+      return sessionStorage.getItem(STARTER_PACK_SESSION_KEY) !== 'true';
+    } catch {
+      return true;
+    }
+  });
+  const [isUnsealingPack, setIsUnsealingPack] = useState(false);
+
+  const handleCloseStarterModal = (scrollToId = null) => {
+    if (isUnsealingPack) return;
+    setIsUnsealingPack(true);
+    try {
+      sessionStorage.setItem(STARTER_PACK_SESSION_KEY, 'true');
+    } catch {
+      // ignore
+    }
+    setTimeout(() => {
+      setStarterModalOpen(false);
+      setIsUnsealingPack(false);
+      if (scrollToId) {
+        setTimeout(() => {
+          const el = document.getElementById(scrollToId);
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }, 80);
+      }
+    }, 520);
+  };
+
+  const handleReopenStarterModal = () => {
+    setIsUnsealingPack(false);
+    setStarterModalOpen(true);
+  };
+
+  // Lock background page scroll while Fullscreen TCG Cover is active
+  useEffect(() => {
+    if (starterModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [starterModalOpen]);
+
   const [cmsOpen, setCmsOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [activeTab, setActiveTab] = useState('profile');
@@ -507,6 +555,7 @@ export default function App() {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
         setSelectedCert(null);
+        handleCloseStarterModal();
       }
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'a') {
         e.preventDefault();
@@ -883,6 +932,286 @@ export default function App() {
       )}
 
       {/* =====================================================================
+          FIRST-VISIT FULLSCREEN TCG BOOSTER PACK COVER (EXACT 100dvh VIEWPORT FIT)
+         ===================================================================== */}
+      {starterModalOpen && (
+        <div className="fixed inset-0 z-50 w-screen h-dvh max-h-dvh overflow-hidden flex flex-col justify-between holo-foil-bg select-none">
+          {/* TOP FOIL CRIMP & INTERACTIVE TEAR STRIP (Rips off when unwrapping) */}
+          <div className={`w-full shrink-0 z-20 ${isUnsealingPack ? 'animate-rip-top' : ''}`}>
+            {/* Metallic Foil Crimp Seal */}
+            <div className="h-3.5 sm:h-5 w-full booster-crimp border-b-3 border-black" />
+
+            {/* Clickable Booster Pack Tear Strip Header */}
+            <div
+              onClick={() => handleCloseStarterModal()}
+              title="Click to Tear & Unwrap Portfolio"
+              className="bg-black text-white border-b-4 border-dashed border-[#FFDE00] px-3 sm:px-6 py-1.5 sm:py-2 flex items-center justify-between gap-2 cursor-pointer group hover:bg-zinc-900 transition-colors"
+            >
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="px-2 py-0.5 bg-[#FFDE00] text-black font-pixel text-[8px] sm:text-[9px] shrink-0">
+                  1ST EDITION // BOOSTER PACK
+                </span>
+                <span className="truncate font-mono-code text-[11px] sm:text-xs text-[#00E5FF] font-extrabold group-hover:underline">
+                  CLICK HERE TO TEAR SEAL & UNWRAP FULL PORTFOLIO
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCloseStarterModal();
+                }}
+                className="px-2.5 sm:px-3.5 py-1 bg-[#FF5252] text-white border-2 border-white font-pixel text-[8px] sm:text-[9px] group-hover:bg-[#00E5FF] group-hover:text-black transition-colors cursor-pointer shrink-0"
+              >
+                SKIP / NEXT ➔
+              </button>
+            </div>
+          </div>
+
+          {/* CENTER PACK BODY (Strictly fitted to viewport height so no page scrolling is needed) */}
+          <div
+            className={`relative flex-1 min-h-0 flex items-center justify-center px-3 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 z-10 overflow-hidden ${
+              isUnsealingPack ? 'animate-unseal-body' : ''
+            }`}
+          >
+            {/* Subtle Holographic Glare Overlay */}
+            <div className="absolute inset-0 holo-glare opacity-45" />
+
+            {/* Inner Booster Pack Frame — Auto-scales to fit viewport height */}
+            <div className="relative z-10 w-full max-w-5xl max-h-full bg-[#FDFBF7] border-4 border-black neo-shadow-lg p-3 sm:p-5 md:p-6 flex flex-col justify-between gap-2.5 sm:gap-3.5 overflow-y-auto md:overflow-hidden">
+              {/* 1. Compact Pack Series Metadata Bar */}
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b-3 border-black pb-2 shrink-0">
+                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                  <span className="px-2.5 py-0.5 bg-black text-[#FFDE00] font-pixel text-[9px] sm:text-[10px]">
+                    STARTER PACK #001
+                  </span>
+                  <span className="px-2.5 py-0.5 bg-[#00E5FF] text-black border-2 border-black font-mono-code text-[11px] font-extrabold">
+                    {data.profile.classType}
+                  </span>
+                  <span className="hidden md:inline-block px-2.5 py-0.5 bg-yellow-200 text-black border-2 border-black font-mono-code text-[11px] font-extrabold">
+                    {data.profile.status}
+                  </span>
+                </div>
+
+                <span className="px-2.5 py-0.5 bg-[#FF5252] text-white border-2 border-black font-pixel text-[9px] sm:text-[10px] neo-shadow-sm">
+                  LVL.{data.profile.level} • S-RANK
+                </span>
+              </div>
+
+              {/* 2. Character Summary Section (Avatar + Name + Title + Bio + Socials) */}
+              <div className="flex flex-col sm:flex-row items-center gap-3.5 sm:gap-5 bg-white border-3 border-black p-3 sm:p-4 neo-shadow-sm shrink-0">
+                {/* Foil Avatar Frame */}
+                <div className="relative shrink-0 group">
+                  <div
+                    style={{ backgroundColor: data.theme.primary }}
+                    className="w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 border-3 border-black neo-shadow-sm overflow-hidden flex items-center justify-center rotate-1 group-hover:rotate-0 transition-transform"
+                  >
+                    <img
+                      src={data.profile.avatarUrl}
+                      alt={data.profile.name}
+                      className="w-full h-full object-cover pixelated"
+                    />
+                  </div>
+                  <div className="absolute -bottom-2 -right-2 bg-black text-[#FFDE00] border-2 border-white px-1.5 py-0.5 font-pixel text-[8px] animate-float-pixel">
+                    ★ FOIL HERO
+                  </div>
+                </div>
+
+                {/* Profile Info & Social Links */}
+                <div className="flex-1 min-w-0 space-y-1.5 sm:space-y-2 text-center sm:text-left">
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                    <span className="text-[10px] font-mono-code font-extrabold uppercase tracking-wider text-gray-500">
+                      PLAYER CHARACTER SUMMARY //
+                    </span>
+                  </div>
+
+                  <h1 className="text-xl sm:text-3xl md:text-4xl font-black uppercase tracking-tight leading-none truncate">
+                    {data.profile.name}
+                  </h1>
+
+                  <div className="font-pixel text-[9px] sm:text-[10px] bg-[#FFDE00] inline-block px-2.5 py-1 border-2 border-black">
+                    {data.profile.title}
+                  </div>
+
+                  <p className="text-xs sm:text-sm font-medium text-gray-800 leading-snug line-clamp-2 md:line-clamp-3">
+                    {data.profile.bio}
+                  </p>
+
+                  {/* Location & Social Buttons */}
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1.5 sm:gap-2 pt-0.5">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 border-2 border-black bg-gray-100 font-mono-code text-[11px] font-bold">
+                      <MapPin size={12} /> {data.profile.location}
+                    </span>
+                    <a
+                      href={`mailto:${data.profile.email}`}
+                      className="neo-btn px-2.5 py-1 bg-white font-mono-code text-[11px] font-extrabold inline-flex items-center gap-1"
+                    >
+                      <Mail size={12} /> EMAIL
+                    </a>
+                    <a
+                      href={data.profile.github}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="neo-btn px-2.5 py-1 bg-black text-white font-mono-code text-[11px] font-extrabold inline-flex items-center gap-1"
+                    >
+                      <Github size={12} /> GITHUB
+                    </a>
+                    {data.profile.linkedin && (
+                      <a
+                        href={data.profile.linkedin}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="neo-btn px-2.5 py-1 bg-[#0077B5] text-white font-mono-code text-[11px] font-extrabold inline-flex items-center gap-1"
+                      >
+                        <Linkedin size={12} /> LINKEDIN
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* 3. Portfolio Quick Recap (4 Interactive Cards) */}
+              <div className="space-y-1.5 sm:space-y-2 shrink-0">
+                <div className="flex flex-wrap items-center justify-between gap-1">
+                  <h2 className="font-pixel text-[10px] sm:text-xs uppercase flex items-center gap-1.5">
+                    <Layers size={15} /> PACK CONTENTS // QUICK PORTFOLIO RECAP
+                  </h2>
+                  <span className="font-mono-code text-[11px] font-bold text-gray-600 hidden sm:inline">
+                    Click any card to unwrap & jump directly to section
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
+                  <button
+                    type="button"
+                    onClick={() => handleCloseStarterModal('quests')}
+                    className="border-3 border-black bg-[#FFDE00] p-2.5 sm:p-3 text-left neo-item-pop cursor-pointer flex flex-col justify-between"
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <FolderGit2 size={18} />
+                      <span className="font-pixel text-[8px] bg-black text-white px-1.5 py-0.5">
+                        QUEST LOG
+                      </span>
+                    </div>
+                    <div className="my-1">
+                      <div className="text-2xl sm:text-3xl font-black leading-none">
+                        {data.projects.length}
+                      </div>
+                      <div className="text-[11px] font-mono-code font-extrabold uppercase mt-0.5">
+                        Featured Projects
+                      </div>
+                    </div>
+                    <div className="text-[10px] font-mono-code font-bold text-black/80 truncate w-full border-t border-black/20 pt-1">
+                      {data.projects.slice(0, 2).map((p) => p.title.split('—')[0].trim()).join(', ')}...
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleCloseStarterModal('skills')}
+                    className="border-3 border-black bg-[#00E5FF] p-2.5 sm:p-3 text-left neo-item-pop cursor-pointer flex flex-col justify-between"
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <Code2 size={18} />
+                      <span className="font-pixel text-[8px] bg-black text-white px-1.5 py-0.5">
+                        TECH STACK
+                      </span>
+                    </div>
+                    <div className="my-1">
+                      <div className="text-2xl sm:text-3xl font-black leading-none">
+                        {data.codingLanguages.length}
+                      </div>
+                      <div className="text-[11px] font-mono-code font-extrabold uppercase mt-0.5">
+                        Coding Languages
+                      </div>
+                    </div>
+                    <div className="text-[10px] font-mono-code font-bold text-black/80 truncate w-full border-t border-black/20 pt-1">
+                      {data.codingLanguages.slice(0, 3).map((l) => l.name.split('/')[0].trim()).join(', ')}...
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleCloseStarterModal('inventory')}
+                    className="border-3 border-black bg-emerald-300 p-2.5 sm:p-3 text-left neo-item-pop cursor-pointer flex flex-col justify-between"
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <Wrench size={18} />
+                      <span className="font-pixel text-[8px] bg-black text-white px-1.5 py-0.5">
+                        INVENTORY
+                      </span>
+                    </div>
+                    <div className="my-1">
+                      <div className="text-2xl sm:text-3xl font-black leading-none">
+                        {data.hardSkills.length +
+                          data.softSkills.length +
+                          data.softwareCapabilities.length}
+                      </div>
+                      <div className="text-[11px] font-mono-code font-extrabold uppercase mt-0.5">
+                        Skills & Software
+                      </div>
+                    </div>
+                    <div className="text-[10px] font-mono-code font-bold text-black/80 truncate w-full border-t border-black/20 pt-1">
+                      {data.hardSkills.length} Hard • {data.softSkills.length} Soft • {data.softwareCapabilities.length} Tools
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleCloseStarterModal('certifications')}
+                    className="border-3 border-black bg-[#FF5252] text-white p-2.5 sm:p-3 text-left neo-item-pop cursor-pointer flex flex-col justify-between"
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <Award size={18} />
+                      <span className="font-pixel text-[8px] bg-black text-[#FFDE00] px-1.5 py-0.5">
+                        VERIFIED
+                      </span>
+                    </div>
+                    <div className="my-1">
+                      <div className="text-2xl sm:text-3xl font-black leading-none">
+                        {certifications.length}
+                      </div>
+                      <div className="text-[11px] font-mono-code font-extrabold uppercase mt-0.5">
+                        Certifications
+                      </div>
+                    </div>
+                    <div className="text-[10px] font-mono-code font-bold text-white/90 truncate w-full border-t border-white/30 pt-1">
+                      BNSP, Hacktiv8, IDX Capital Market...
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              {/* 4. Prominent Unwrap / Next Action Callout Footer */}
+              <div className="pt-2.5 border-t-3 border-black flex flex-col sm:flex-row items-center justify-between gap-2.5 shrink-0">
+                <div className="flex items-center gap-2 text-xs font-mono-code font-extrabold text-black bg-yellow-100 border-2 border-black px-3 py-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#FF5252] animate-ping shrink-0" />
+                  <span>SEALED STARTER PACK — UNWRAP OR CLICK NEXT TO OPEN FULL PORTFOLIO</span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => handleCloseStarterModal()}
+                  style={{ backgroundColor: data.theme.primary }}
+                  className="w-full sm:w-auto px-6 py-3 bg-[#FFDE00] hover:bg-[#00E5FF] text-black border-3 border-black font-pixel text-[10px] sm:text-xs font-extrabold inline-flex items-center justify-center gap-2.5 cursor-pointer animate-unwrap-cta shrink-0"
+                >
+                  <Sparkles size={16} /> UNWRAP PACK // NEXT <ArrowRight size={16} />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* BOTTOM FOIL CRIMP SEAL */}
+          <div
+            className={`h-3.5 sm:h-5 w-full booster-crimp border-t-3 border-black shrink-0 z-20 ${
+              isUnsealingPack ? 'animate-unseal-body' : ''
+            }`}
+          />
+        </div>
+      )}
+
+      {/* =====================================================================
           CERTIFICATE HIGH-RES DETAIL & ZOOM LIGHTBOX MODAL
          ===================================================================== */}
       {selectedCert && (
@@ -1092,7 +1421,15 @@ export default function App() {
           </div>
 
           {isAdmin ? (
-            <div className="flex items-center gap-2 md:gap-3">
+            <div className="flex flex-wrap items-center gap-2 md:gap-3">
+              <button
+                type="button"
+                onClick={handleReopenStarterModal}
+                title="Preview First-Visit Starter Pack"
+                className="neo-btn px-2.5 py-1.5 bg-white text-xs font-extrabold flex items-center gap-1 cursor-pointer"
+              >
+                <Gift size={14} /> PACK INTRO
+              </button>
               <button
                 onClick={() => setEditMode(!editMode)}
                 className={`neo-btn px-3 py-1.5 text-xs md:text-sm font-bold flex items-center gap-1.5 cursor-pointer ${
@@ -1135,6 +1472,14 @@ export default function App() {
               <a href="#certifications" className="neo-btn px-2.5 py-1 bg-[#FDFBF7] hover:bg-emerald-300">
                 CERTIFICATES
               </a>
+              <button
+                type="button"
+                onClick={handleReopenStarterModal}
+                title="Open TCG Starter Pack & Portfolio Recap"
+                className="neo-btn px-2.5 py-1 bg-[#FFDE00] hover:bg-[#00E5FF] font-mono-code text-xs font-extrabold inline-flex items-center gap-1 cursor-pointer"
+              >
+                <Gift size={13} /> STARTER PACK
+              </button>
             </nav>
           )}
         </div>
