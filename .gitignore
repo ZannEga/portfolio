@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+
+# Build outputs
+dist/
+frontend/dist/
+backend/server
+*.exe
+*.out
+
+# Environment variables & local secrets
+.env
+.env.local
+frontend/.env
+frontend/.env.local
+backend/.env
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

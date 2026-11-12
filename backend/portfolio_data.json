@@ -1,0 +1,359 @@
+{
+  "profile": {
+    "name": "FAUZAN EGA RASENDRIYA",
+    "title": "TECH PRODUCT MANAGER & BACKEND ARCHITECT",
+    "level": 21,
+    "classType": "IS UNDERGRAD @ UNAIR",
+    "bio": "Information Systems undergraduate at Universitas Airlangga passionate about bridging complex software engineering and strategic product management. Experienced in architecting scalable backend systems, leading cross-functional technical teams, and driving B2B partnership strategies.",
+    "location": "Surabaya, East Java, ID",
+    "status": "OPEN FOR QUESTS (PRODUCT / BACKEND / MOBILE / DATA)",
+    "avatarUrl": "https://avatars.githubusercontent.com/u/100182102?v=4",
+    "email": "fauzanegar@gmail.com",
+    "github": "https://github.com/ZannEga",
+    "linkedin": "https://linkedin.com/in/fauzanega",
+    "cvLink": "#download-cv"
+  },
+  "theme": {
+    "bgMain": "#FDFBF7",
+    "primary": "#FFDE00",
+    "secondary": "#FF5252",
+    "accent": "#00E5FF",
+    "cardBg": "#FFFFFF"
+  },
+  "projects": [
+    {
+      "id": "proj-tedx",
+      "title": "TEDx UNAIR — WEB & REGISTRATION SYSTEM",
+      "category": "BACKEND INFRASTRUCTURE & LEADERSHIP",
+      "rank": "S-RANK",
+      "year": "2026",
+      "description": "Served as Co-Manager of Backend Development for a high-performance event platform and registration system engineered to handle massive traffic spikes. Led the backend infrastructure team and aligned technical execution with event stakeholders to achieve zero downtime during peak registration.",
+      "image": "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=800&q=80",
+      "techStack": [
+        "Golang",
+        "PHP",
+        "Laravel",
+        "MySQL",
+        "REST API"
+      ],
+      "liveUrl": "https://github.com/ZannEga",
+      "repoUrl": "https://github.com/ZannEga"
+    },
+    {
+      "id": "proj-medcampus",
+      "title": "MEDCAMPUS — HEALTH CLINIC BOOKING",
+      "category": "FULL-STACK WEB APPLICATION",
+      "rank": "S-RANK",
+      "year": "2026",
+      "description": "Engineered a comprehensive clinic management platform supporting high-traffic patient registrations, real-time queue tracking, appointment scheduling, and digital medical records. Architected relational database schemas (CDM & PDM) using Laravel and MySQL integrated with a responsive Tailwind CSS interface.",
+      "image": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=800&q=80",
+      "techStack": [
+        "PHP",
+        "Laravel",
+        "MySQL",
+        "Tailwind CSS",
+        "HTML5",
+        "JavaScript"
+      ],
+      "liveUrl": "https://github.com/ZannEga",
+      "repoUrl": "https://github.com/ZannEga"
+    },
+    {
+      "id": "proj-emosync",
+      "title": "EMOSYNC — EMOTIONAL WELL-BEING APP",
+      "category": "CROSS-PLATFORM MOBILE & PRODUCT",
+      "rank": "S-RANK",
+      "year": "2026",
+      "description": "Spearheaded product ideation, end-to-end project management, and foundational database architecture for a cross-platform Flutter mobile application that empowers users to track daily mood check-ins and synchronize their emotional well-being.",
+      "image": "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=800&q=80",
+      "techStack": [
+        "Flutter",
+        "Dart",
+        "MySQL",
+        "Figma"
+      ],
+      "liveUrl": "https://github.com/ZannEga",
+      "repoUrl": "https://github.com/ZannEga"
+    },
+    {
+      "id": "proj-isac",
+      "title": "ISAC 2026 — B2B SPONSORSHIP & CRM",
+      "category": "STRATEGIC PARTNERSHIP & FUNDRAISING",
+      "rank": "A-RANK",
+      "year": "2026",
+      "description": "Directed end-to-end B2B corporate partnership and fundraising operations as Head of Partnership for the Information Systems Airlangga Competition (ISAC). Managed a 20+ corporate prospect pipeline using CRM analytics to secure vital event funding and maximize partner ROI.",
+      "image": "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=800&q=80",
+      "techStack": [
+        "SQL",
+        "Python",
+        "CRM Analytics"
+      ],
+      "liveUrl": "https://linkedin.com/in/fauzanega",
+      "repoUrl": "https://github.com/ZannEga"
+    },
+    {
+      "id": "proj-dakara",
+      "title": "DAKARA HARAPAN WEBSITE",
+      "category": "RESPONSIVE WEB PLATFORM",
+      "rank": "A-RANK",
+      "year": "2024",
+      "description": "Developed a responsive, accessible web platform utilizing HTML5, CSS3, JavaScript, and PHP, translating UI/UX design concepts into intuitive, cross-device user experiences.",
+      "image": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80",
+      "techStack": [
+        "PHP",
+        "JavaScript",
+        "HTML5",
+        "CSS3",
+        "Bootstrap"
+      ],
+      "liveUrl": "https://github.com/ZannEga",
+      "repoUrl": "https://github.com/ZannEga"
+    },
+    {
+      "id": "proj-sipeka",
+      "title": "SIPEKA GUIDEBOOK & PLATFORM UX",
+      "category": "TECHNICAL DOCUMENTATION & UX",
+      "rank": "A-RANK",
+      "year": "2024",
+      "description": "Authored the comprehensive 'SIPeka Guidebook' during an internship at PT. Sentra Solusi Indonesia to streamline user onboarding and simplify complex technical workflows, while collaborating on platform UX refinements.",
+      "image": "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=80",
+      "techStack": [
+        "Figma",
+        "UML",
+        "BPMN"
+      ],
+      "liveUrl": "https://linkedin.com/in/fauzanega",
+      "repoUrl": "https://github.com/ZannEga"
+    },
+    {
+      "id": "proj-neobrutal",
+      "title": "NEOBRUTAL PIXEL RPG PORTFOLIO CMS",
+      "category": "FULL-STACK WEB & LIVE CMS",
+      "rank": "S-RANK",
+      "year": "2026",
+      "description": "Architected an interactive full-stack portfolio web application blending Neobrutalism and 8-Bit RPG aesthetics, featuring 3D TCG Booster Pack card flips, automated language usage analytics, and a Live Visual CMS powered by a Golang REST API.",
+      "image": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=800&q=80",
+      "techStack": [
+        "React",
+        "Golang",
+        "JavaScript",
+        "Tailwind CSS",
+        "HTML5"
+      ],
+      "liveUrl": "https://github.com/ZannEga",
+      "repoUrl": "https://github.com/ZannEga"
+    }
+  ],
+  "codingLanguages": [
+    {
+      "id": "lang-1",
+      "name": "PHP / Laravel",
+      "level": 92,
+      "badge": "BACKEND CORE",
+      "color": "#FF2D20"
+    },
+    {
+      "id": "lang-2",
+      "name": "Golang (Go)",
+      "level": 88,
+      "badge": "API ENGINE",
+      "color": "#00ADD8"
+    },
+    {
+      "id": "lang-3",
+      "name": "SQL / MySQL",
+      "level": 95,
+      "badge": "DATA ARCHITECT",
+      "color": "#00758F"
+    },
+    {
+      "id": "lang-4",
+      "name": "Dart / Flutter",
+      "level": 86,
+      "badge": "MOBILE CRAFT",
+      "color": "#02569B"
+    },
+    {
+      "id": "lang-5",
+      "name": "JavaScript / React",
+      "level": 88,
+      "badge": "FRONTEND RUNE",
+      "color": "#F7DF1E"
+    },
+    {
+      "id": "lang-6",
+      "name": "HTML5 / CSS3 / Tailwind CSS / Bootstrap",
+      "level": 95,
+      "badge": "UI STYLING",
+      "color": "#38B2AC"
+    },
+    {
+      "id": "lang-7",
+      "name": "Python / Flask",
+      "level": 85,
+      "badge": "DATA & ML",
+      "color": "#3776AB"
+    },
+    {
+      "id": "lang-8",
+      "name": "Kotlin / Java",
+      "level": 84,
+      "badge": "CERTIFIED DEV",
+      "color": "#7F52FF"
+    }
+  ],
+  "hardSkills": [
+    {
+      "id": "hs-1",
+      "name": "Backend Architecture & REST/GraphQL APIs",
+      "category": "Software Engineering",
+      "mastery": "MASTER"
+    },
+    {
+      "id": "hs-2",
+      "name": "Relational Database Design (CDM, PDM & MySQL)",
+      "category": "Data Architecture",
+      "mastery": "MASTER"
+    },
+    {
+      "id": "hs-3",
+      "name": "System Modeling (UML, BPMN & PlantUML)",
+      "category": "System Architecture",
+      "mastery": "MASTER"
+    },
+    {
+      "id": "hs-4",
+      "name": "Data Analysis, Visualization & Machine Learning",
+      "category": "Data Science",
+      "mastery": "ADVANCED"
+    },
+    {
+      "id": "hs-5",
+      "name": "Cross-Platform Mobile & Responsive Web Dev",
+      "category": "Full-Stack Dev",
+      "mastery": "ADVANCED"
+    },
+    {
+      "id": "hs-6",
+      "name": "Talent Analytics & Performance Evaluation",
+      "category": "HR & People Analytics",
+      "mastery": "MASTER"
+    }
+  ],
+  "softSkills": [
+    {
+      "id": "ss-1",
+      "name": "Tech Product & Project Management",
+      "buff": "+40% Milestone Execution",
+      "description": "Translating abstract business concepts into structured technical workflows and spearheading end-to-end product development lifecycles."
+    },
+    {
+      "id": "ss-2",
+      "name": "Cross-Functional Team Leadership",
+      "buff": "+35% Party Synergy",
+      "description": "Bridging communication between software engineers, UI/UX designers, and non-technical stakeholders under high-pressure deadlines."
+    },
+    {
+      "id": "ss-3",
+      "name": "B2B Negotiation & Sponsorship Acquisition",
+      "buff": "+30% Funding ROI",
+      "description": "Managing conversion-driven corporate partnership pipelines and structuring mutually beneficial sponsorship proposals."
+    },
+    {
+      "id": "ss-4",
+      "name": "Critical Thinking & Conflict Resolution",
+      "buff": "-25% Crisis Cooldown",
+      "description": "Applying analytical problem-solving to operational bottlenecks while mediating team dynamics to sustain a high-performing culture."
+    }
+  ],
+  "softwareCapabilities": [
+    {
+      "id": "sw-1",
+      "name": "Laravel",
+      "role": "Backend Framework",
+      "rarity": "LEGENDARY",
+      "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/laravel/laravel-original.svg"
+    },
+    {
+      "id": "sw-2",
+      "name": "Flutter",
+      "role": "Mobile SDK",
+      "rarity": "LEGENDARY",
+      "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/flutter/flutter-original.svg"
+    },
+    {
+      "id": "sw-3",
+      "name": "MySQL",
+      "role": "Relational DB",
+      "rarity": "LEGENDARY",
+      "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mysql/mysql-original.svg"
+    },
+    {
+      "id": "sw-4",
+      "name": "Figma",
+      "role": "UI/UX Prototyping",
+      "rarity": "LEGENDARY",
+      "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/figma/figma-original.svg"
+    },
+    {
+      "id": "sw-5",
+      "name": "Golang",
+      "role": "Microservice Engine",
+      "rarity": "EPIC",
+      "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/go/go-original-wordmark.svg"
+    },
+    {
+      "id": "sw-6",
+      "name": "Git & GitHub",
+      "role": "25+ Repos (Pull Shark)",
+      "rarity": "LEGENDARY",
+      "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg"
+    },
+    {
+      "id": "sw-7",
+      "name": "Adobe Photoshop & AI",
+      "role": "Visual Design",
+      "rarity": "EPIC",
+      "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/photoshop/photoshop-original.svg"
+    },
+    {
+      "id": "sw-8",
+      "name": "Adobe Premiere Pro",
+      "role": "Video Production",
+      "rarity": "EPIC",
+      "logoUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/premierepro/premierepro-original.svg"
+    }
+  ],
+  "certifications": [
+    {
+      "id": "cert-1",
+      "title": "JUNIOR WEB PROGRAMMER COMPETENCY",
+      "issuer": "BNSP — LSP Universitas Airlangga",
+      "year": "2026",
+      "credentialId": "BNSP-JWP-2026",
+      "credentialUrl": "https://linkedin.com/in/fauzanega",
+      "description": "National professional competency certification validating full-stack web programming, structured coding standards, and database integration.",
+      "image": "https://images.unsplash.com/photo-1589330694653-ded6df03f754?auto=format&fit=crop&w=1200&q=85"
+    },
+    {
+      "id": "cert-2",
+      "title": "GENERATIVE AI & PROMPT ENGINEERING",
+      "issuer": "Hacktiv8 Indonesia",
+      "year": "2025",
+      "credentialId": "H8-GENAI-2025",
+      "credentialUrl": "https://linkedin.com/in/fauzanega",
+      "description": "Intensive training covering Large Language Models (LLMs), AI workflow integration, and modern generative AI application development.",
+      "image": "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1200&q=85"
+    },
+    {
+      "id": "cert-3",
+      "title": "CAPITAL MARKET SCHOOL (SPM BASIC)",
+      "issuer": "Indonesia Stock Exchange (IDX)",
+      "year": "2026",
+      "credentialId": "IDX-SPM-2026",
+      "credentialUrl": "https://linkedin.com/in/fauzanega",
+      "description": "Foundational certification in capital market analysis, equity valuation, and financial investment instruments.",
+      "image": "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1200&q=85"
+    }
+  ]
+}
