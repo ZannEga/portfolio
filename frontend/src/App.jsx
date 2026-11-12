@@ -686,19 +686,26 @@ export default function App() {
   const pullFromGolang = async (silent = false) => {
     setSyncStatus({ state: 'syncing', message: 'FETCHING DATA...' });
     try {
-      const res = await fetch(apiUrl, { method: 'GET' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const separator = apiUrl.includes('?') ? '&' : '?';
+      const res = await fetch(`${apiUrl}${separator}t=${Date.now()}`, {
+        method: 'GET',
+        cache: 'no-store'
+      });
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson.error || `HTTP ${res.status}`);
+      }
       const remoteData = await res.json();
       if (remoteData && remoteData.profile) {
         if (!remoteData.certifications) remoteData.certifications = INITIAL_DATA.certifications;
         setData(remoteData);
         setSyncStatus({ state: 'synced', message: 'CLOUD SYNCED' });
-        if (!silent) showToast('Successfully pulled latest portfolio data!', 'success');
+        if (!silent) showToast('Successfully pulled latest portfolio data from Cloud!', 'success');
       }
     } catch (err) {
       setSyncStatus({ state: 'local', message: 'LOCAL MODE (OFFLINE)' });
       if (!silent) {
-        showToast(`Failed to fetch from server (${err.message}).`, 'error');
+        showToast(`Failed to fetch from server: ${err.message}`, 'error');
       }
     }
   };
@@ -799,19 +806,53 @@ export default function App() {
     showToast(`Moved item to position #${toIndex + 1}!`);
   };
 
-  // Universal local image file uploader (Base64 Data URL)
+  // Universal local image file uploader with automatic Canvas compression (keeps Cloud JSON fast & under Vercel 4.5MB limit)
   const handleFileUploadToDataUrl = (file, onSuccess, label = 'Image') => {
     if (!file) return;
-    if (file.size > 4 * 1024 * 1024) {
-      showToast('Maximum image size is 4 MB to keep JSON lightweight!', 'error');
+    if (file.size > 10 * 1024 * 1024) {
+      showToast('Maximum image size is 10 MB!', 'error');
       return;
     }
+
+    // Keep SVG or tiny images (< 150 KB) as-is
+    if (file.type === 'image/svg+xml' || file.size < 150 * 1024) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (e.target?.result) {
+          onSuccess(String(e.target.result));
+          showToast(`${label} uploaded successfully!`);
+        }
+      };
+      reader.readAsDataURL(file);
+      return;
+    }
+
+    // Compress larger PNG/JPG images via HTML5 Canvas so Gist & Vercel sync fast on mobile
     const reader = new FileReader();
     reader.onload = (e) => {
-      if (e.target?.result) {
-        onSuccess(String(e.target.result));
-        showToast(`${label} uploaded successfully from device!`);
-      }
+      const img = new window.Image();
+      img.onload = () => {
+        const maxDim = label.toLowerCase().includes('certificate') ? 1400 : 900;
+        let { width, height } = img;
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.82);
+        onSuccess(compressedDataUrl);
+        showToast(`${label} optimized & uploaded!`);
+      };
+      img.src = String(e.target?.result || '');
     };
     reader.readAsDataURL(file);
   };
@@ -952,7 +993,7 @@ export default function App() {
                   1ST EDITION // BOOSTER PACK
                 </span>
                 <span className="truncate font-mono-code text-[11px] sm:text-xs text-[#00E5FF] font-extrabold group-hover:underline">
-                  CLICK HERE TO TEAR SEAL & UNWRAP FULL PORTFOLIO
+                  ✂️ CLICK HERE TO TEAR SEAL & UNWRAP FULL PORTFOLIO
                 </span>
               </div>
 
@@ -990,7 +1031,7 @@ export default function App() {
                     {data.profile.classType}
                   </span>
                   <span className="hidden md:inline-block px-2.5 py-0.5 bg-yellow-200 text-black border-2 border-black font-mono-code text-[11px] font-extrabold">
-                    {data.profile.status}
+                    ⚡ {data.profile.status}
                   </span>
                 </div>
 

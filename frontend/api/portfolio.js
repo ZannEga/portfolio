@@ -1,19 +1,20 @@
 // Vercel Serverless Function: /api/portfolio
-// Connects your React Live CMS directly to GitHub Gist (100% Free & Permanent Database)
+// Connects your React Live CMS directly to GitHub Gist (Supports large JSON & Base64 images via raw_url)
 
 export default async function handler(req, res) {
-  // Enable CORS
+  // Enable CORS & prevent caching
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, PUT, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Token');
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
-  const gistId = process.env.GIST_ID;
-  const githubToken = process.env.GITHUB_TOKEN;
-  const adminToken = process.env.ADMIN_TOKEN || 'rahasia-fauzan-99';
+  const gistId = (process.env.GIST_ID || '').trim();
+  const githubToken = (process.env.GITHUB_TOKEN || '').trim();
+  const adminToken = (process.env.ADMIN_TOKEN || 'rahasia-fauzan-99').trim();
 
   if (!gistId || !githubToken) {
     return res.status(500).json({
@@ -21,14 +22,15 @@ export default async function handler(req, res) {
     });
   }
 
-  // GET: Fetch portfolio data from GitHub Gist for all visitors
+  // GET: Fetch portfolio data from GitHub Gist for all visitors (Desktop & Mobile)
   if (req.method === 'GET') {
     try {
-      const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+      const response = await fetch(`https://api.github.com/gists/${gistId}?t=${Date.now()}`, {
         headers: {
           Authorization: `Bearer ${githubToken}`,
           Accept: 'application/vnd.github+json',
-          'X-GitHub-Api-Version': '2022-11-28'
+          'X-GitHub-Api-Version': '2022-11-28',
+          'Cache-Control': 'no-cache'
         }
       });
 
@@ -43,14 +45,50 @@ export default async function handler(req, res) {
         gistData.files?.['portfolio_data.json'] ||
         Object.values(gistData.files || {})[0];
 
-      if (!fileObj || !fileObj.content) {
+      if (!fileObj) {
         return res.status(404).json({
           error: 'portfolio_data.json not found inside your GitHub Gist.'
         });
       }
 
-      const parsedContent = JSON.parse(fileObj.content);
-      res.setHeader('Cache-Control', 'no-store, max-age=0');
+      let rawJsonString = fileObj.content;
+
+      // IMPORTANT FIX: If portfolio_data.json has Base64 images (> 1 MB), GitHub sets fileObj.truncated = true
+      // and cuts off fileObj.content. We must fetch fileObj.raw_url to get the complete untruncated JSON!
+      if (fileObj.truncated || !rawJsonString) {
+        if (!fileObj.raw_url) {
+          return res.status(500).json({
+            error: 'Gist file is truncated and raw_url is unavailable.'
+          });
+        }
+        const rawRes = await fetch(`${fileObj.raw_url}?t=${Date.now()}`, {
+          headers: {
+            Authorization: `Bearer ${githubToken}`,
+            'Cache-Control': 'no-cache'
+          }
+        });
+        if (!rawRes.ok) {
+          return res.status(rawRes.status).json({
+            error: `Failed fetching raw_url from Gist (HTTP ${rawRes.status})`
+          });
+        }
+        rawJsonString = await rawRes.text();
+      }
+
+      let parsedContent;
+      try {
+        parsedContent = JSON.parse(rawJsonString);
+      } catch (parseErr) {
+        // Fallback to raw_url if content was partially truncated without flag
+        if (fileObj.raw_url) {
+          const rawRes = await fetch(`${fileObj.raw_url}?t=${Date.now()}`);
+          const fullText = await rawRes.text();
+          parsedContent = JSON.parse(fullText);
+        } else {
+          throw parseErr;
+        }
+      }
+
       return res.status(200).json(parsedContent);
     } catch (err) {
       return res.status(500).json({
@@ -61,7 +99,7 @@ export default async function handler(req, res) {
 
   // PUT: Save updated portfolio data from Live CMS to GitHub Gist (Admin Only)
   if (req.method === 'PUT') {
-    const providedToken = req.headers['x-admin-token'];
+    const providedToken = (req.headers['x-admin-token'] || '').trim();
     if (providedToken !== adminToken) {
       return res.status(401).json({
         error: 'Unauthorized: Invalid Admin Security Token (X-Admin-Token).'
@@ -78,6 +116,8 @@ export default async function handler(req, res) {
         });
       }
 
+      const existingFilename = 'portfolio_data.json';
+
       const response = await fetch(`https://api.github.com/gists/${gistId}`, {
         method: 'PATCH',
         headers: {
@@ -88,7 +128,7 @@ export default async function handler(req, res) {
         },
         body: JSON.stringify({
           files: {
-            'portfolio_data.json': {
+            [existingFilename]: {
               content: JSON.stringify(bodyData, null, 2)
             }
           }
