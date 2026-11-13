@@ -1029,7 +1029,7 @@ export default function App() {
                   1ST EDITION // BOOSTER PACK
                 </span>
                 <span className="truncate font-mono-code text-[11px] sm:text-xs text-[#00E5FF] font-extrabold group-hover:underline">
-                  ✂️ CLICK HERE TO TEAR SEAL & UNWRAP FULL PORTFOLIO
+                   CLICK HERE TO TEAR SEAL & UNWRAP FULL PORTFOLIO
                 </span>
               </div>
 
@@ -1067,7 +1067,7 @@ export default function App() {
                     {data.profile.classType}
                   </span>
                   <span className="hidden md:inline-block px-2.5 py-0.5 bg-yellow-200 text-black border-2 border-black font-mono-code text-[11px] font-extrabold">
-                    ⚡ {data.profile.status}
+                     {data.profile.status}
                   </span>
                 </div>
 
