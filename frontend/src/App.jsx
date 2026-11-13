@@ -660,6 +660,42 @@ export default function App() {
     setCertZoom(1);
   };
 
+  // Smart Email Compose Handler:
+  // - On Mobile: opens native Mail / Gmail app via mailto:
+  // - On Desktop: opens Gmail Web Compose in a new tab (since Windows/Chrome often ignores mailto: if no desktop mail app is set)
+  const cleanEmailAddress = String(data.profile.email || '')
+    .replace(/^mailto:/i, '')
+    .trim();
+  const emailSubject = `Portfolio Inquiry — ${data.profile.name || 'Fauzan Ega'}`;
+  const mailtoHref = `mailto:${cleanEmailAddress}?subject=${encodeURIComponent(emailSubject)}`;
+  const gmailComposeUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(
+    cleanEmailAddress
+  )}&su=${encodeURIComponent(emailSubject)}`;
+
+  const handleEmailClick = (e) => {
+    e.stopPropagation();
+    if (!cleanEmailAddress) return;
+
+    // Copy email to clipboard as a helpful backup
+    if (navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(cleanEmailAddress).catch(() => {});
+    }
+
+    const isMobileDevice = /Android|iPhone|iPad|iPod|Mobile/i.test(
+      navigator.userAgent || ''
+    );
+
+    if (isMobileDevice) {
+      // Let native mobile mailto: open the phone's Gmail/Mail app
+      window.location.href = mailtoHref;
+    } else {
+      // On desktop browsers where mailto: often does nothing, open Gmail Web Compose directly in a new tab
+      e.preventDefault();
+      window.open(gmailComposeUrl, '_blank', 'noopener,noreferrer');
+      showToast(`Opening email composer to ${cleanEmailAddress} (Address also copied!)`);
+    }
+  };
+
   // Auto-save to localStorage
   useEffect(() => {
     try {
@@ -1085,10 +1121,12 @@ export default function App() {
                       <MapPin size={12} /> {data.profile.location}
                     </span>
                     <a
-                      href={`mailto:${data.profile.email}`}
-                      className="neo-btn px-2.5 py-1 bg-white font-mono-code text-[11px] font-extrabold inline-flex items-center gap-1"
+                      href={mailtoHref}
+                      onClick={handleEmailClick}
+                      title={`Send email to ${cleanEmailAddress}`}
+                      className="neo-btn px-2.5 py-1 bg-white hover:bg-[#FFDE00] font-mono-code text-[11px] font-extrabold inline-flex items-center gap-1 cursor-pointer"
                     >
-                      <Mail size={12} /> EMAIL
+                      <Mail size={12} /> {cleanEmailAddress || 'EMAIL'}
                     </a>
                     <a
                       href={data.profile.github}
@@ -1144,7 +1182,9 @@ export default function App() {
                       </div>
                     </div>
                     <div className="text-[10px] font-mono-code font-bold text-black/80 truncate w-full border-t border-black/20 pt-1">
-                      {data.projects.slice(0, 2).map((p) => p.title.split('—')[0].trim()).join(', ')}...
+                      {data.projects.length > 0
+                        ? data.projects.map((p) => (p.title || '').split('—')[0].trim()).filter(Boolean).join(', ')
+                        : 'No projects yet'}
                     </div>
                   </button>
 
@@ -1168,7 +1208,9 @@ export default function App() {
                       </div>
                     </div>
                     <div className="text-[10px] font-mono-code font-bold text-black/80 truncate w-full border-t border-black/20 pt-1">
-                      {data.codingLanguages.slice(0, 3).map((l) => l.name.split('/')[0].trim()).join(', ')}...
+                      {data.codingLanguages.length > 0
+                        ? data.codingLanguages.map((l) => (l.name || '').split('/')[0].trim()).filter(Boolean).join(', ')
+                        : 'No languages yet'}
                     </div>
                   </button>
 
@@ -1218,7 +1260,9 @@ export default function App() {
                       </div>
                     </div>
                     <div className="text-[10px] font-mono-code font-bold text-white/90 truncate w-full border-t border-white/30 pt-1">
-                      BNSP, Hacktiv8, IDX Capital Market...
+                      {certifications.length > 0
+                        ? certifications.map((c) => (c.title || c.issuer || '').split('—')[0].trim()).filter(Boolean).join(', ')
+                        : 'No certifications yet'}
                     </div>
                   </button>
                 </div>
@@ -1577,10 +1621,12 @@ export default function App() {
                   <MapPin size={14} /> {data.profile.location}
                 </span>
                 <a
-                  href={`mailto:${data.profile.email}`}
-                  className="neo-btn px-4 py-1.5 bg-white font-mono-code text-xs font-bold inline-flex items-center gap-1.5"
+                  href={mailtoHref}
+                  onClick={handleEmailClick}
+                  title={`Compose email to ${cleanEmailAddress}`}
+                  className="neo-btn px-4 py-1.5 bg-white hover:bg-[#FFDE00] font-mono-code text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer"
                 >
-                  <Mail size={14} /> {data.profile.email}
+                  <Mail size={14} /> {cleanEmailAddress}
                 </a>
                 <a
                   href={data.profile.github}
